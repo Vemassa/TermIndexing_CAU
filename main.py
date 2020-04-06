@@ -17,9 +17,8 @@ def retrieve_file_content(filename):
 def sort_indexes(list):
     return sorted(list, key=str.lower)
 
-def posting_list(list):
+def create_posting_list(list):
     posting_list = []
-    last_elem = ""
     i = 0
 
     while i < len(list):
@@ -33,6 +32,18 @@ def posting_list(list):
         i += 1
 
     # print(*posting_list, sep="\n")
+    return posting_list
+
+def ban_stop_words(posting_list):
+    with open("stopwords.txt") as f_in:
+        stopwords = (line.rstrip() for line in f_in)
+        stopwords = list(line.strip() for line in stopwords if line)
+
+    new_posting_list = [x for x in posting_list if x[0] not in stopwords]
+
+    # print(*posting_list2, sep="\n")
+
+    return (new_posting_list)
 
 def main():
     print("Hello, World!")
@@ -47,7 +58,7 @@ def main():
             inverted_indexes += list([word, index] for word in words)
 
     inverted_indexes = sorted(inverted_indexes, key=lambda word: (word[0], word[1]))
-    posting_list(inverted_indexes)
+    posting_list = ban_stop_words(create_posting_list(inverted_indexes))
 
     # print(*inverted_indexes, sep="\n")
 
