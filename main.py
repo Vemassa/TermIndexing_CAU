@@ -17,6 +17,17 @@ def retrieve_file_content(filename):
 def sort_indexes(list):
     return sorted(list, key=str.lower)
 
+def create_inverted_indexes_list(files):
+    inverted_indexes = []
+
+    for index, file in enumerate(files):
+        lines = retrieve_file_content("./Movies/" + file)
+        for line in lines:
+            words = line.split()
+            inverted_indexes += list([word, index] for word in words)
+
+    return inverted_indexes
+
 def create_posting_list(list):
     posting_list = []
     i = 0
@@ -49,18 +60,10 @@ def main():
     print("Hello, World!")
 
     files = retrieve_files("./Movies")
-    inverted_indexes = []
-
-    for index, file in enumerate(files):
-        lines = retrieve_file_content("./Movies/" + file)
-        for line in lines:
-            words = line.split()
-            inverted_indexes += list([word, index] for word in words)
-
-    inverted_indexes = sorted(inverted_indexes, key=lambda word: (word[0], word[1]))
+    inverted_indexes = sorted(create_inverted_indexes_list(files), key=lambda word: (word[0], word[1]))
     posting_list = ban_stop_words(create_posting_list(inverted_indexes))
 
-    # print(*inverted_indexes, sep="\n")
+    print(*posting_list, sep="\n")
 
 if __name__== "__main__" :
     main()
