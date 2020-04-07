@@ -52,18 +52,38 @@ def ban_stop_words(posting_list):
 
     new_posting_list = [x for x in posting_list if x[0] not in stopwords]
 
-    # print(*posting_list2, sep="\n")
-
     return (new_posting_list)
 
-def main():
-    print("Hello, World!")
+def word_index(posting_list, word):
+    for index, elem in enumerate(posting_list):
+        if word == elem[0]:
+            return index
+    return -1
 
-    files = retrieve_files("./Movies")
+def create_chart(files, posting_list, index):
+    percentage = (posting_list[index][1] * 100) / len(files)
+
+    print("Word \"{}\" appears in {}% of scripts ({} scripts out of {}).".format(posting_list[index][0], str(percentage), str(posting_list[index][1]), str(len(files))))
+    print("Appears in: ")
+    for index in range(0, len(posting_list[index][2])):
+        print("\t" + files[index][:-4])
+
+
+def main():
+
+    files = sorted(retrieve_files("./Movies"), key=str.lower)
     inverted_indexes = sorted(create_inverted_indexes_list(files), key=lambda word: (word[0], word[1]))
     posting_list = ban_stop_words(create_posting_list(inverted_indexes))
 
-    print(*posting_list, sep="\n")
+    query = input("Select word: ")
+    query = query.strip()
+
+    index = word_index(posting_list, query)
+    if index < 0:
+        print("Query word couldn't be found in any scripts")
+        return
+
+    create_chart(files, posting_list, index)
 
 if __name__== "__main__" :
     main()
