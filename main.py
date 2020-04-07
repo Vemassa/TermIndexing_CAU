@@ -23,7 +23,7 @@ def create_inverted_indexes_list(files):
     for index, file in enumerate(files):
         lines = retrieve_file_content("./Movies/" + file)
         for line in lines:
-            words = line.split()
+            words = (line.lower()).split()
             inverted_indexes += list([word, index] for word in words)
 
     return inverted_indexes
@@ -42,7 +42,6 @@ def create_posting_list(list):
             posting_list[-1][2].append(list[i][1])
         i += 1
 
-    # print(*posting_list, sep="\n")
     return posting_list
 
 def ban_stop_words(posting_list):
@@ -63,7 +62,7 @@ def word_index(posting_list, word):
 def create_chart(files, posting_list, index):
     percentage = (posting_list[index][1] * 100) / len(files)
 
-    print("Word \"{}\" appears in {}% of scripts ({} scripts out of {}).".format(posting_list[index][0], str(percentage), str(posting_list[index][1]), str(len(files))))
+    print("Word \"{}\" appears in {:0.2f}% of scripts ({} scripts out of {}).".format(posting_list[index][0], percentage, str(posting_list[index][1]), str(len(files))))
     print("Appears in: ")
     for index in range(0, len(posting_list[index][2])):
         print("\t" + files[index][:-4])
@@ -76,7 +75,7 @@ def main():
     posting_list = ban_stop_words(create_posting_list(inverted_indexes))
 
     query = input("Select word: ")
-    query = query.strip()
+    query = (query.strip()).lower()
 
     index = word_index(posting_list, query)
     if index < 0:
