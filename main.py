@@ -2,6 +2,7 @@ import fileinput
 from os import listdir
 from os.path import isfile, join
 import re
+import time
 
 def retrieve_files(folder):
     return [f for f in listdir(folder) if isfile(join(folder, f))]
@@ -72,7 +73,9 @@ def main():
 
     files = sorted(retrieve_files("./Movies"), key=str.lower)
     inverted_indexes = sorted(create_inverted_indexes_list(files), key=lambda word: (word[0], word[1]))
+    # print(*inverted_indexes, sep="\n")
     posting_list = ban_stop_words(create_posting_list(inverted_indexes))
+    # print(*posting_list, sep="\n")
 
     query = input("Select word: ")
     query = (query.strip()).lower()
