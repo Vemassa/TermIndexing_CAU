@@ -19,11 +19,11 @@ def retrieve_file_content(filename):
 def sort_indexes(list):
     return sorted(list, key=str.lower)
 
-def create_inverted_indexes_list(files):
+def create_inverted_indexes_list(files, genre):
     inverted_indexes = []
 
     for index, file in enumerate(files):
-        lines = retrieve_file_content("./Movies/" + file)
+        lines = retrieve_file_content("./Movies/{}/{}".format(genre, file))
         for line in lines:
             words = (line.lower()).split()
             inverted_indexes += list([word, index] for word in words)
@@ -60,7 +60,7 @@ def word_index(posting_list, word):
             return index
     return -1
 
-def create_chart(files, posting_list, index):
+def create_chart(files, posting_list, index, genre):
     percentage = (len(posting_list[index][1]) * 100) / len(files)
 
     print("Word \"{}\" appears in {:0.2f}% of scripts ({} scripts out of {}).".format(posting_list[index][0], percentage, str(len(posting_list[index][1])), str(len(files))))
@@ -71,24 +71,40 @@ def create_chart(files, posting_list, index):
 
 def main():
 
-    files = sorted(retrieve_files("./Movies"), key=str.lower)
-    inverted_indexes = sorted(create_inverted_indexes_list(files), key=lambda word: (word[0], word[1]))
-    # print(*inverted_indexes, sep="\n")
-    posting_list = ban_stop_words(create_posting_list(inverted_indexes))
-    # print(*posting_list, sep="\n")
+    action_files = sorted(retrieve_files("./Movies/Action/"), key=str.lower)
+    animation_files = sorted(retrieve_files("./Movies/Animation/"), key=str.lower)
+    
+    action_inverted_indexes = sorted(create_inverted_indexes_list(action_files, "Action"), key=lambda word: (word[0], word[1]))
+    # print(*action_inverted_indexes, sep="\n")
+    action_posting_list = ban_stop_words(create_posting_list(action_inverted_indexes))
+    # print(*action_posting_list, sep="\n")
 
+    animation_inverted_indexes = sorted(create_inverted_indexes_list(animation_files, "Animation"), key=lambda word: (word[0], word[1]))
+    # print(*animation_inverted_indexes, sep="\n")
+    animation_posting_list = ban_stop_words(create_posting_list(animation_inverted_indexes))
+    # print(*animation_posting_list, sep="\n")
+
+    # Quit now if debug mode is on
     if len(sys.argv) > 1 and sys.argv[1] == "-t":
         return
 
     query = input("Select word: ")
     query = (query.strip()).lower()
 
-    index = word_index(posting_list, query)
-    if index < 0:
+    action_index = word_index(action_posting_list, query)
+    animation_index = word_index(animation_posting_list, query)
+    if action_index < 0 and animation_index < 0:
         print("Query word couldn't be found in any scripts")
         return
+    elif action_index < 0:
+        print("Query word couldn't be found in any action movies")
+        return
+    elif animation_index < 0:
+        print("Query word couldn't be found in any animation movies")
+        return
 
-    create_chart(files, posting_list, index)
+    create_chart(action_files, action_posting_list, action_index, "Action")
+    create_chart(animation_files, animation_posting_list, animation_index, "Animation")
 
 if __name__== "__main__" :
     main()
