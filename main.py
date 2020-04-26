@@ -3,6 +3,7 @@ from os import listdir
 from os.path import isfile, join
 import re
 import time
+import sys
 
 def retrieve_files(folder):
     return [f for f in listdir(folder) if isfile(join(folder, f))]
@@ -35,12 +36,11 @@ def create_posting_list(list):
 
     while i < len(list):
         if i < 1:
-            posting_list.append([list[i][0], 1, [list[i][1]]])
+            posting_list.append([list[i][0], [list[i][1]]])
         elif list[i][0] != list[i - 1][0]:
-            posting_list.append([list[i][0], 1, [list[i][1]]])
-        elif list[i][1] not in posting_list[-1][2]:
-            posting_list[-1][1] += 1
-            posting_list[-1][2].append(list[i][1])
+            posting_list.append([list[i][0], [list[i][1]]])
+        elif list[i][1] not in posting_list[-1][1]:
+            posting_list[-1][1].append(list[i][1])
         i += 1
 
     return posting_list
@@ -61,11 +61,11 @@ def word_index(posting_list, word):
     return -1
 
 def create_chart(files, posting_list, index):
-    percentage = (posting_list[index][1] * 100) / len(files)
+    percentage = (len(posting_list[index][1]) * 100) / len(files)
 
-    print("Word \"{}\" appears in {:0.2f}% of scripts ({} scripts out of {}).".format(posting_list[index][0], percentage, str(posting_list[index][1]), str(len(files))))
+    print("Word \"{}\" appears in {:0.2f}% of scripts ({} scripts out of {}).".format(posting_list[index][0], percentage, str(len(posting_list[index][1])), str(len(files))))
     print("Appears in: ")
-    for index in range(0, len(posting_list[index][2])):
+    for index in range(0, len(posting_list[index][1])):
         print("\t" + files[index][:-4])
 
 
@@ -76,6 +76,9 @@ def main():
     # print(*inverted_indexes, sep="\n")
     posting_list = ban_stop_words(create_posting_list(inverted_indexes))
     # print(*posting_list, sep="\n")
+
+    if len(sys.argv) > 1 and sys.argv[1] == "-t":
+        return
 
     query = input("Select word: ")
     query = (query.strip()).lower()
