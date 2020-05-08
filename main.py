@@ -63,7 +63,7 @@ def word_index(posting_list, word):
 def create_chart(files, posting_list, index, genre):
     percentage = (len(posting_list[index][1]) * 100) / len(files)
 
-    print("Word \"{}\" appears in {:0.2f}% of scripts ({} scripts out of {}).".format(posting_list[index][0], percentage, str(len(posting_list[index][1])), str(len(files))))
+    print("Word \"{}\" appears in {:0.2f}% of {} movie scripts ({} scripts out of {}).".format(posting_list[index][0], percentage, genre, str(len(posting_list[index][1])), str(len(files))))
     print("Appears in: ")
     for index in range(0, len(posting_list[index][1])):
         print("\t" + files[index][:-4])
@@ -71,6 +71,7 @@ def create_chart(files, posting_list, index, genre):
 
 def main():
 
+    start_time = time.time()
     action_files = sorted(retrieve_files("./Movies/Action/"), key=str.lower)
     animation_files = sorted(retrieve_files("./Movies/Animation/"), key=str.lower)
     
@@ -88,23 +89,30 @@ def main():
     if len(sys.argv) > 1 and sys.argv[1] == "-t":
         return
 
+    print("--- %.2f seconds for movies indexing ---" % (time.time() - start_time))
     query = input("Select word: ")
     query = (query.strip()).lower()
+
+    start_time = time.time()
 
     action_index = word_index(action_posting_list, query)
     animation_index = word_index(animation_posting_list, query)
     if action_index < 0 and animation_index < 0:
         print("Query word couldn't be found in any scripts")
+        print("--- %.2f seconds for finding indexes ---" % (time.time() - start_time))
         return
     elif action_index < 0:
         print("Query word couldn't be found in any action movies")
+        print("--- %.2f seconds for finding indexes ---" % (time.time() - start_time))
         return
     elif animation_index < 0:
         print("Query word couldn't be found in any animation movies")
+        print("--- %.2f seconds for finding indexes ---" % (time.time() - start_time))
         return
 
     create_chart(action_files, action_posting_list, action_index, "Action")
     create_chart(animation_files, animation_posting_list, animation_index, "Animation")
+    print("--- %.2f seconds for finding indexes ---" % (time.time() - start_time))
 
 if __name__== "__main__" :
     main()
